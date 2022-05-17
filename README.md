@@ -1,55 +1,166 @@
-# Smart Contract Challenge
+## Index
+  - [Assumptions and constraints](#assumptions-and-constraints)
+  - [About the proposed solution](#about-the-proposed-solution)
+	  - [PoolDeposit](#pool-deposit)
+	  - [PoolRewards](#pool-rewards)
+  - [How EthPool calculate the total of an account?](#How-EthPool-calculate-the-total-of-an-account?)
+  
+ [**Rinkeby Link**](https://rinkeby.etherscan.io/address/0x9f2bf94D87A2fE4F07AC391bb1AEb73630E5524f#code)
 
-## A) Challenge
+##  Assumptions and constraints
 
-### 1) Setup a project and create a contract
+  
 
-#### Summary
+- From the "challenge readme" I assume that any rewards deposits without any pool deposit lead to inaccessible funds so the proposed solution block it.
 
-ETHPool provides a service where people can deposit ETH and they will receive weekly rewards. Users must be able to take out their deposits along with their portion of rewards at any time. New rewards are deposited manually into the pool by the ETHPool team each week using a contract function.
+- The proposed solution supports rewards deposits for any period.
 
-#### Requirements
+- Also supports partial withdrawal.
 
-- Only the team can deposit rewards.
-- Deposited rewards go to the pool of users, not to individual users.
-- Users should be able to withdraw their deposits along with their share of rewards considering the time when they deposited.
+  
 
-Example:
+##  About the proposed solution
 
-> Let say we have user **A** and **B** and team **T**.
->
-> **A** deposits 100, and **B** deposits 300 for a total of 400 in the pool. Now **A** has 25% of the pool and **B** has 75%. When **T** deposits 200 rewards, **A** should be able to withdraw 150 and **B** 450.
->
-> What if the following happens? **A** deposits then **T** deposits then **B** deposits then **A** withdraws and finally **B** withdraws.
-> **A** should get their deposit + all the rewards.
-> **B** should only get their deposit because rewards were sent to the pool before they participated.
+  
 
-#### Goal
+- There is an ETH pool where any account can deposit eth.
 
-Design and code a contract for ETHPool, take all the assumptions you need to move forward.
+- Occasionally the pool receives a rewards deposit from the contract's owner. This amount of ETH would be distributed among the pool users' about his contribution.
 
-You can use any development tools you prefer: Hardhat, Truffle, Brownie, Solidity, Vyper.
+  
 
-Useful resources:
+I introduce two concepts: "epoch" and "pool weight".
 
-- Solidity Docs: https://docs.soliditylang.org/en/v0.8.4
-- Educational Resource: https://github.com/austintgriffith/scaffold-eth
-- Project Starter: https://github.com/abarmat/solidity-starter
+- epoch is the period between rewards deposits
+- pool weight is the amount of ETH for a specific epoch
 
-### 2) Write tests
+  
+  
 
-Make sure that all your code is tested properly
+I use two sctructs:
 
-### 3) Deploy your contract
+  
 
-Deploy the contract to any Ethereum testnet of your preference. Keep record of the deployed address.
+###  PoolDeposit
 
-Bonus:
+_Represents user deposits on the pool. This struct has two attributes: amount, and epoch (epoch number)_
 
-- Verify the contract in Etherscan
+  
 
-### 4) Interact with the contract
+###  PoolRewards
 
-Create a script (or a Hardhat task) to query the total amount of ETH held in the contract.
+_Represents rewards deposits on the pool. This struct also has two attributes: amount, and poolWeight (I need to keep the pool weight at the moment of the rewards deposit)_
 
-_You can use any library you prefer: Ethers.js, Web3.js, Web3.py, eth-brownie_
+  
+
+The contract has three vars:
+
+	PoolRewards[] rewards => Array of rewards
+
+	address owner => Owner's address
+
+	mapping(address => PoolDeposit) deposits => Mapping address with a PoolDeposit
+
+  
+
+_**NOTE:** there is only one PoolDeposit per user. If the user that already has a deposit makes another deposit, then the contract updates the PoolDeposit_
+
+  
+  
+
+### **How EthPool calculate the total of an account?**
+
+With the user's PoolDeposit the contract knows the current amount and the first "epoch" when this amount qualified for a rewards share.
+
+Let's say that the amount in the PoolDeposit is depositAmount, then the contract will add the share of every reward, starting from "epoch".
+
+_depositAmount += (rewards.amount * depositAmount) / rewards.poolWeight;_
+
+This "formula" takes into account the compound interest.
+
+  
+
+For every withdraw or deposit the contract will update the PoolDeposit for the account (amount & epoch).
+
+
+## Installation 
+* Credits [@PatrickAlphaC](https://github.com/PatrickAlphaC)
+
+Prerequisites
+
+Please install or have installed the following:
+
+- [nodejs and npm](https://nodejs.org/en/download/)
+- [python](https://www.python.org/downloads/)
+
+1. [Install Brownie](https://eth-brownie.readthedocs.io/en/stable/install.html), if you haven't already. Here is a simple way to install brownie.
+
+
+```bash
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+# restart your terminal
+pipx install eth-brownie
+```
+Or, if that doesn't work, via pip
+```bash
+pip install eth-brownie
+```
+
+## Testnet Development
+If you want to be able to deploy to testnets, do the following. 
+
+### With environment variables
+
+Set your `WEB3_INFURA_PROJECT_ID`, and `PRIVATE_KEY` [environment variables](https://www.twilio.com/blog/2017/01/how-to-set-environment-variables.html). 
+
+You can get a `WEB3_INFURA_PROJECT_ID` by getting a free trial of [Infura](https://infura.io/). At the moment, it does need to be infura with brownie. If you get lost, you can [follow this guide](https://ethereumico.io/knowledge-base/infura-api-key-guide/) to getting a project key. You can find your `PRIVATE_KEY` from your ethereum wallet like [metamask](https://metamask.io/). 
+
+You'll also need testnet rinkeby ETH and LINK. You can get LINK and ETH into your wallet by using the [rinkeby faucets located here](https://docs.chain.link/docs/link-token-contracts#rinkeby). If you're new to this, [watch this video.](https://www.youtube.com/watch?v=P7FX_1PePX0)
+
+You can add your environment variables to the `.env` file:
+
+```
+export WEB3_INFURA_PROJECT_ID=<PROJECT_ID>
+export PRIVATE_KEY=<PRIVATE_KEY>
+export PRIVATE_KEY_B=<PRIVATE_KEY_B> //to work with 2 accounts
+```
+
+AND THEN RUN `source .env` TO ACTIVATE THE ENV VARIABLES
+(You'll need to do this everytime you open a new terminal, or [learn how to set them easier](https://www.twilio.com/blog/2017/01/how-to-set-environment-variables.html))
+
+> DO NOT SEND YOUR PRIVATE KEY WITH FUNDS IN IT ONTO GITHUB
+
+## Local Development
+
+For local testing [install ganache-cli](https://www.npmjs.com/package/ganache-cli)
+```bash
+npm install -g ganache-cli
+```
+or
+```bash
+yarn add global ganache-cli
+```
+
+All the scripts are designed to work locally or on a testnet. You can add a ganache-cli or ganache UI chain like so: 
+```
+brownie networks add Ethereum ganache host=http://localhost:8545 chainid=1337
+```
+And update the brownie config accordingly. There is a `deploy_mocks` script that will launch and deploy mock Oracles, VRFCoordinators, Link Tokens, and Price Feeds on a Local Blockchain. 
+
+
+## Deploy to a testnet / Scripts
+
+```
+brownie run scripts/deploy.py
+```
+
+To run the unit tests:
+```
+brownie test
+```
+
+
+
+
+

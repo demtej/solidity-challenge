@@ -1,0 +1,14 @@
+dotenv: .env
+networks:
+  default: development
+  rinkeby:
+    verify: True
+  mainnet-fork-dev:
+    verify: False
+  development:
+    verify: False
+  ganache-local:
+    verify: False
+wallets:
+  from_key: ${METAMASK_KEY}
+  from_b_key: ${METAMASK_KEY_B}
