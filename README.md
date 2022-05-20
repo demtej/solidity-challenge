@@ -19,12 +19,12 @@
 
 ##  About the proposed solution
 
-* Credits [](https://github.com/PatrickAlphaC)
+* Credits [Scalable Reward Distribution on the Ethereum
+Blockchain](http://batog.info/papers/scalable-reward-distribution.pdf)
 
 ## Installation 
 
-* Credits [Scalable Reward Distribution on the Ethereum
-Blockchain](http://batog.info/papers/scalable-reward-distribution.pdf)
+* Credits [@PatrickAlphaC](https://github.com/PatrickAlphaC)
 
 Prerequisites
 
