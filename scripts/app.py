@@ -45,12 +45,12 @@ def total_account():
 
 
 def withdraw_all_b():
-    tx = eth_pool.withdrawAll({"from": get_b_account()})
+    tx = eth_pool.withdraw({"from": get_b_account()})
     tx.wait(1)
 
 
 def withdraw_all():
-    tx = eth_pool.withdrawAll({"from": get_account()})
+    tx = eth_pool.withdraw({"from": get_account()})
     tx.wait(1)
 
 

@@ -15,76 +15,16 @@
 
 - The proposed solution supports rewards deposits for any period.
 
-- Also supports partial withdrawal.
-
   
 
 ##  About the proposed solution
 
-  
-
-- There is an ETH pool where any account can deposit eth.
-
-- Occasionally the pool receives a rewards deposit from the contract's owner. This amount of ETH would be distributed among the pool users' about his contribution.
-
-  
-
-I introduce two concepts: "epoch" and "pool weight".
-
-- epoch is the period between rewards deposits
-- pool weight is the amount of ETH for a specific epoch
-
-  
-  
-
-I use two sctructs:
-
-  
-
-###  PoolDeposit
-
-_Represents user deposits on the pool. This struct has two attributes: amount, and epoch (epoch number)_
-
-  
-
-###  PoolRewards
-
-_Represents rewards deposits on the pool. This struct also has two attributes: amount, and poolWeight (I need to keep the pool weight at the moment of the rewards deposit)_
-
-  
-
-The contract has three vars:
-
-	PoolRewards[] rewards => Array of rewards
-
-	address owner => Owner's address
-
-	mapping(address => PoolDeposit) deposits => Mapping address with a PoolDeposit
-
-  
-
-_**NOTE:** there is only one PoolDeposit per user. If the user that already has a deposit makes another deposit, then the contract updates the PoolDeposit_
-
-  
-  
-
-### **How EthPool calculate the total of an account?**
-
-With the user's PoolDeposit the contract knows the current amount and the first "epoch" when this amount qualified for a rewards share.
-
-Let's say that the amount in the PoolDeposit is depositAmount, then the contract will add the share of every reward, starting from "epoch".
-
-_depositAmount += (rewards.amount * depositAmount) / rewards.poolWeight;_
-
-This "formula" takes into account the compound interest.
-
-  
-
-For every withdraw or deposit the contract will update the PoolDeposit for the account (amount & epoch).
-
+* Credits [](https://github.com/PatrickAlphaC)
 
 ## Installation 
-* Credits [@PatrickAlphaC](https://github.com/PatrickAlphaC)
+
+* Credits [Scalable Reward Distribution on the Ethereum
+Blockchain](http://batog.info/papers/scalable-reward-distribution.pdf)
 
 Prerequisites
 
